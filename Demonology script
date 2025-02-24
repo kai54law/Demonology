@@ -1,0 +1,283 @@
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+local playerGui = player.PlayerGui
+
+-- Criando a ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+screenGui.Name = "MyScreenGui"
+
+-- Criando o Frame para os Botões
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 200)
+frame.Position = UDim2.new(0.5, -100, 0.5, -100)
+frame.BackgroundTransparency = 0.5
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.Parent = screenGui
+
+-- Função para mover o Frame com o mouse
+local dragging = false
+local dragInput, dragStart, startPos
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+-- Criando os Botões
+local button1 = Instance.new("TextButton")
+button1.Size = UDim2.new(1, 0, 0, 50)
+button1.Position = UDim2.new(0, 0, 0, 0)
+button1.Text = "Alerta!"
+button1.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+button1.TextColor3 = Color3.fromRGB(255, 255, 255)
+button1.Parent = frame
+
+local button2 = Instance.new("TextButton")
+button2.Size = UDim2.new(1, 0, 0, 50)
+button2.Position = UDim2.new(0, 0, 0, 60)
+button2.Text = "Show Ghost"
+button2.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+button2.TextColor3 = Color3.fromRGB(255, 255, 255)
+button2.Parent = frame
+
+local button3 = Instance.new("TextButton")
+button3.Size = UDim2.new(1, 0, 0, 50)
+button3.Position = UDim2.new(0, 0, 0, 120)
+button3.Text = "Esp Ghost"
+button3.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+button3.TextColor3 = Color3.fromRGB(255, 255, 255)
+button3.Parent = frame
+
+-- Função de minimização/expansão
+local minimized = false
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0, 50, 0, 50)
+minimizeButton.Position = UDim2.new(0, 150, 0, 0)
+minimizeButton.Text = "-"
+minimizeButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.Parent = frame
+
+minimizeButton.MouseButton1Click:Connect(function()
+    if minimized then
+        frame.Size = UDim2.new(0, 200, 0, 200)
+        button1.Visible = true
+        button2.Visible = true
+        button3.Visible = true
+        minimizeButton.Text = "-"
+    else
+        frame.Size = UDim2.new(0, 200, 0, 50)
+        button1.Visible = false
+        button2.Visible = false
+        button3.Visible = false
+        minimizeButton.Text = "+"
+    end
+    minimized = not minimized
+end)
+
+-- **Botão 1 - Alerta!**
+button1.MouseButton1Click:Connect(function()
+    -- Criando a UI
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.Size = UDim2.new(0, 300, 0, 50)
+    statusLabel.Position = UDim2.new(0.5, -150, 0.5, -25)  -- Posicionando no centro
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.TextScaled = true
+    statusLabel.Visible = false  -- Inicialmente invisível
+    statusLabel.Parent = screenGui
+
+    -- Função para exibir as informações sobre o fantasma (dentro da parte Ghost)
+    local function displayGhostData(ghostPart)
+        -- Pegando os dados diretamente dos Attributes da parte Ghost
+        local age = ghostPart:GetAttribute("Age") or "Desconhecido"
+        local currentRoom = ghostPart:GetAttribute("CurrentRoom") or "Desconhecido"
+        local favoriteRoom = ghostPart:GetAttribute("FavoriteRoom") or "Desconhecido"
+        local gender = ghostPart:GetAttribute("Gender") or "Desconhecido"
+
+        -- Criando TextLabels para cada dado do fantasma (Idade, Quarto Atual, etc.)
+        local ageLabel = Instance.new("TextLabel")
+        ageLabel.Size = UDim2.new(0, 300, 0, 50)
+        ageLabel.Position = UDim2.new(0, 10, 1, -200)
+        ageLabel.BackgroundTransparency = 1
+        ageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ageLabel.TextScaled = true
+        ageLabel.Text = "Idade: " .. age
+        ageLabel.Parent = screenGui
+
+        -- Quarto Atual
+        local roomLabel = Instance.new("TextLabel")
+        roomLabel.Size = UDim2.new(0, 300, 0, 50)
+        roomLabel.Position = UDim2.new(0, 10, 1, -150)
+        roomLabel.BackgroundTransparency = 1
+        roomLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        roomLabel.TextScaled = true
+        roomLabel.Text = "Quarto Atual: " .. currentRoom
+        roomLabel.Parent = screenGui
+
+        -- Quarto Favorito
+        local favoriteRoomLabel = Instance.new("TextLabel")
+        favoriteRoomLabel.Size = UDim2.new(0, 300, 0, 50)
+        favoriteRoomLabel.Position = UDim2.new(0, 10, 1, -100)
+        favoriteRoomLabel.BackgroundTransparency = 1
+        favoriteRoomLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        favoriteRoomLabel.TextScaled = true
+        favoriteRoomLabel.Text = "Quarto Favorito: " .. favoriteRoom
+        favoriteRoomLabel.Parent = screenGui
+
+        -- Gênero
+        local genderLabel = Instance.new("TextLabel")
+        genderLabel.Size = UDim2.new(0, 300, 0, 50)
+        genderLabel.Position = UDim2.new(0, 10, 1, -50)
+        genderLabel.BackgroundTransparency = 1
+        genderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        genderLabel.TextScaled = true
+        genderLabel.Text = "Gênero: " .. gender
+        genderLabel.Parent = screenGui
+
+        -- Atualizando o quarto atual constantemente
+        while true do
+            local updatedRoom = ghostPart:GetAttribute("CurrentRoom") or "Desconhecido"
+            roomLabel.Text = "Quarto Atual: " .. updatedRoom
+            wait(1)  -- Atualiza a cada 1 segundo
+        end
+    end
+
+    -- Função para atualizar o estado de Hunting e mostrar na UI por 5 segundos
+    local function updateHuntingState(ghostPart)
+        ghostPart:GetAttributeChangedSignal("Hunting"):Connect(function()
+            local hunting = ghostPart:GetAttribute("Hunting") or false
+
+            if hunting then
+                statusLabel.Text = "Esconder"
+                statusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)  -- Vermelho
+            else
+                statusLabel.Text = "Seguro!"
+                statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)  -- Verde
+            end
+
+            statusLabel.Visible = true
+            wait(5)
+            statusLabel.Visible = false
+        end)
+    end
+
+    local ghostPart = workspace:FindFirstChild("Ghost")
+    if ghostPart then
+        displayGhostData(ghostPart)
+        updateHuntingState(ghostPart)
+    else
+        warn("A parte Ghost não foi encontrada!")
+    end
+end)
+
+-- **Botão 2 - Show Ghost**
+button2.MouseButton1Click:Connect(function()
+    local ghostModel = workspace:WaitForChild("Ghost")
+
+    while true do
+        for _, obj in pairs(ghostModel:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                obj.Transparency = 0
+            end
+        end
+        wait(0.1)
+    end
+end)
+
+-- **Botão 3 - Esp Ghost**
+button3.MouseButton1Click:Connect(function()
+    local Ghost = game.Workspace:WaitForChild("Ghost")
+
+    local highlight = Instance.new("Highlight")
+    highlight.Parent = Ghost
+    highlight.Enabled = true
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.OutlineTransparency = 0
+    highlight.ClassName = "Highlight"
+    highlight.Adornee = Ghost
+    highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+end)
+
+
+
+
+
+
+local UserInputService = game:GetService("UserInputService")
+local Player = game.Players.LocalPlayer
+local Mouse = Player:GetMouse()
+local Camera = game.Workspace.CurrentCamera
+
+local isFreeCursor = false  -- Controla se o movimento livre está ativado
+local originalMouseIcon = Mouse.Icon  -- Guarda o ícone original do mouse
+
+-- Função para alterar o ícone do mouse para um ícone customizado
+local function changeMouseToCustomIcon()
+    Mouse.Icon = "rbxassetid://YOUR_ICON_ID"  -- Substitua "YOUR_ICON_ID" pelo ID do ícone que você deseja usar
+    UserInputService.MouseBehavior = Enum.MouseBehavior.Default  -- Garante que o mouse esteja visível
+end
+
+-- Função para restaurar o ícone original do mouse
+local function restoreOriginalMouseIcon()
+    Mouse.Icon = originalMouseIcon  -- Retorna ao ícone original do mouse
+    UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter  -- Restringe o cursor no centro da tela no modo FPS
+end
+
+-- Função para ativar/desativar o movimento livre do mouse
+local function toggleFreeCursor()
+    if isFreeCursor then
+        -- Desativar movimento livre, voltar ao controle normal de primeira pessoa
+        Camera.CameraType = Enum.CameraType.Custom  -- Modo de primeira pessoa
+        restoreOriginalMouseIcon()  -- Restaura o ícone original do mouse
+    else
+        -- Ativar movimento livre
+        Camera.CameraType = Enum.CameraType.Scriptable  -- Permitir a movimentação livre
+        changeMouseToCustomIcon()  -- Muda para o ícone customizado
+    end
+    isFreeCursor = not isFreeCursor
+end
+
+-- Detecta o pressionamento da tecla "0" para alternar o estado do mouse
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+    if input.KeyCode == Enum.KeyCode.Zero then
+        toggleFreeCursor()
+    end
+end)
+
+-- Acessando o UserInputService e o Player
+local UserInputService = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+
+-- Definindo o ID da imagem do cursor (substitua pelo ID desejado)
+local cursorImageId = "rbxassetid://ID_DO_CURSOR_AQUI"
+
+-- Função para atualizar o cursor
+local function updateCursor()
+    -- Ativar a visibilidade do cursor
+    UserInputService.MouseIconEnabled = true
+    -- Definir a imagem do cursor
+    mouse.Icon = cursorImageId
+end
+
+-- Chamar a função para atualizar o cursor
+updateCursor()
+
+-- Listener para garantir que o cursor está visível o tempo todo
+UserInputService.MouseIconEnabled = true
